@@ -9,12 +9,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilização visual moderna e profissional para redes sociais
+# Estilização visual responsiva para computadores e celulares
 st.markdown("""
     <style>
     .main { background-color: #f4f6f9; }
-    .stMetric { background-color: #ffffff; padding: 18px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); border-top: 4px solid #1f77b4; }
-    .prediction-box { background-color: #ffffff; padding: 22px; border-radius: 12px; border-left: 6px solid #1f77b4; box-shadow: 0 4px 6px rgba(0,0,0,0.04); margin-bottom: 20px; }
+    .stMetric { background-color: #ffffff !important; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.06); border-top: 4px solid #1f77b4; color: #111111 !important; }
+    .stMetric label { color: #555555 !important; font-weight: 600 !important; }
+    .stMetric [data-testid="stMetricValue"] { color: #111111 !important; }
+    .prediction-box { background-color: #ffffff; padding: 22px; border-radius: 12px; border-left: 6px solid #1f77b4; box-shadow: 0 4px 6px rgba(0,0,0,0.04); margin-bottom: 20px; color: #111111; }
     .author-badge { background-color: #e3f2fd; padding: 8px 15px; border-radius: 8px; color: #0d47a1; font-weight: bold; display: inline-block; margin-bottom: 15px; }
     </style>
 """, unsafe_allow_html=True)
@@ -214,7 +216,6 @@ def motor_nominal_real(uf, cargo, turno, variacao, transferencia, iteracoes):
                 'Potencial de Crescimento': ['Alto', 'Alto', 'Moderado', 'Moderado', 'Baixo', 'Baixo']
             })
     else:
-        # Matriz nominal universal inteligente cobrindo todas as demais UFs com nomes limpos e reais
         if cargo == "Governador":
             df = pd.DataFrame({
                 'Candidato / Partido': [f'Governador Atual ({uf})', f'Liderança Opositora ({uf})', f'Candidato de Centro ({uf})', f'Nome Progressista ({uf})', f'Candidato Alternativo ({uf})', f'Nome Independente ({uf})'],
@@ -237,14 +238,10 @@ def motor_nominal_real(uf, cargo, turno, variacao, transferencia, iteracoes):
                 'Potencial de Crescimento': ['Alto', 'Alto', 'Moderado', 'Moderado', 'Baixo', 'Baixo']
             })
 
-    # Extrai a coluna numérica principal de votos
     col_votos = [c for c in df.columns if '%' in c][0]
-
-    # Aplica perturbação estocástica
     df[col_votos] = df[col_votos] + np.random.normal(variacao, 0.6, len(df))
     df[col_votos] = df[col_votos].clip(lower=0.1)
 
-    # Simulação de Monte Carlo para probabilidade preditiva
     rejeicao_penalty = 1 - (df['Taxa de Rejeição (%)'] / 100)
     pesos_finais = df[col_votos] * rejeicao_penalty
     df['Probabilidade Preditiva (Monte Carlo %)'] = (
@@ -256,15 +253,17 @@ def motor_nominal_real(uf, cargo, turno, variacao, transferencia, iteracoes):
 df_candidatos, coluna_votos = motor_nominal_real(
     estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos, fator_transferencia, iteracoes_monte_carlo)
 
-# KPIs Executivos no Topo
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Líder do Modelo Preditivo", df_candidatos.iloc[0, 0])
-col2.metric("Intenção Projetada",
-            f"{df_candidatos.iloc[0][coluna_votos]:.1f}%")
-col3.metric("Probabilidade de Sucesso (IA)",
-            f"{df_candidatos.iloc[0]['Probabilidade Preditiva (Monte Carlo %)']}%")
-col4.metric("Intervalo de Confiança",
-            f"95% (± {1.5 + (10000/iteracoes_monte_carlo)*0.2:.1f}%)")
+# KPIs Executivos Responsivos (Empilhados automaticamente no celular)
+col1, col2 = st.columns(2)
+with col1:
+    st.metric("Líder do Modelo Preditivo", df_candidatos.iloc[0, 0])
+    st.metric("Intenção Projetada",
+              f"{df_candidatos.iloc[0][coluna_votos]:.1f}%")
+with col2:
+    st.metric("Probabilidade de Sucesso (IA)",
+              f"{df_candidatos.iloc[0]['Probabilidade Preditiva (Monte Carlo %)']}%")
+    st.metric("Intervalo de Confiança",
+              f"95% (± {1.5 + (10000/iteracoes_monte_carlo)*0.2:.1f}%)")
 
 st.markdown("---")
 
