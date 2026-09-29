@@ -2,14 +2,15 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
-# Configuração da página e layout executivo
+# Configuração da página e layout executivo (iniciando com sidebar expandida)
 st.set_page_config(
     page_title="Simulador Preditivo Eleitoral 2026 | Derik Petiz",
     page_icon="🗳️",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Estilização visual responsiva para computadores e celulares
+# Estilização visual moderna e responsiva para computadores e telemóveis
 st.markdown("""
     <style>
     .main { background-color: #f4f6f9; }
@@ -18,6 +19,7 @@ st.markdown("""
     .stMetric [data-testid="stMetricValue"] { color: #111111 !important; }
     .prediction-box { background-color: #ffffff; padding: 22px; border-radius: 12px; border-left: 6px solid #1f77b4; box-shadow: 0 4px 6px rgba(0,0,0,0.04); margin-bottom: 20px; color: #111111; }
     .author-badge { background-color: #e3f2fd; padding: 8px 15px; border-radius: 8px; color: #0d47a1; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+    .mobile-tip { background-color: #fff3cd; border: 1px solid #ffeeba; padding: 12px 18px; border-radius: 8px; color: #856404; font-weight: 500; margin-bottom: 20px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -26,6 +28,14 @@ st.title("🇧🇷 Eleições 2026 — Sistema Preditivo Eleitoral por Inteligê
 st.markdown("Plataforma analítica avançada baseada em Simulações Estocásticas de Monte Carlo, Regressão Logística e Redes de Markov.")
 st.markdown('<div class="author-badge">👨‍💻 Desenvolvido e Arquitetado por: Derik Petiz</div>',
             unsafe_allow_html=True)
+
+# Aviso visual claro para telemóveis sobre o Painel Lateral
+st.markdown("""
+    <div class="mobile-tip">
+        📱 <b>Dica de Navegação:</b> Toque na seta <b>(> ou Oções)</b> no canto superior esquerdo para abrir o <b>Painel de Controlo Lateral</b>, onde poderá escolher o seu Estado (UF), o Cargo pretendido e simular diferentes cenários políticos!
+    </div>
+""", unsafe_allow_html=True)
+
 st.markdown("---")
 
 # Lista completa de UFs do Brasil
@@ -35,13 +45,15 @@ lista_ufs = [
     'RN', 'RO', 'RR', 'SC', 'SE', 'TO'
 ]
 
-# Barra Lateral de Navegação
-st.sidebar.header("🎛️ Painel de Controle Analítico")
+# Barra Lateral de Navegação com destaque
+st.sidebar.header("🎛️ Painel de Controlo Analítico")
+st.sidebar.markdown(
+    "👇 **Use os seletores abaixo para mudar o Estado e o Cargo:**")
 st.sidebar.markdown(f"**Autor:** Derik Petiz")
 st.sidebar.markdown("---")
 
 estado_selecionado = st.sidebar.selectbox(
-    "Selecione o Estado (UF) / Âmbito",
+    "🌍 Selecione o Estado (UF) / Âmbito",
     lista_ufs
 )
 
@@ -53,14 +65,14 @@ else:
         "Governador", "Senador (2 Vagas)", "Deputado Federal", "Deputado Estadual"]
 
 cargo_selecionado = st.sidebar.selectbox(
-    "Selecione o Cargo",
+    "🎯 Selecione o Cargo",
     cargos_disponiveis
 )
 
 # Seletor de Turno para cargos executivos
 if cargo_selecionado in ["Presidente da República", "Governador"]:
     turno_selecionado = st.sidebar.radio(
-        "Fase da Disputa", ["1º Turno", "2º Turno (Simulação de Confronto)"])
+        "⚡ Fase da Disputa", ["1º Turno", "2º Turno (Simulação de Confronto)"])
 else:
     turno_selecionado = "Turno Único (Sistema Proporcional / Sobras)"
 
@@ -253,7 +265,7 @@ def motor_nominal_real(uf, cargo, turno, variacao, transferencia, iteracoes):
 df_candidatos, coluna_votos = motor_nominal_real(
     estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos, fator_transferencia, iteracoes_monte_carlo)
 
-# KPIs Executivos Responsivos (Empilhados automaticamente no celular)
+# KPIs Executivos Responsivos
 col1, col2 = st.columns(2)
 with col1:
     st.metric("Líder do Modelo Preditivo", df_candidatos.iloc[0, 0])
