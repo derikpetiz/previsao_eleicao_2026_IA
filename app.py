@@ -271,11 +271,11 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, r
         df['Intenção Bruta Coletada (%)'] = df[col_votos].round(1)
         cols_puras = [
             c for c in df.columns if 'Rejeição' not in c and 'Potencial' not in c and 'Probabilidade' not in c]
-        return df[cols_puras], cols_puras[1]
+        res_df = df[cols_puras].copy()
     elif "Modelo Estatístico" in modo:
         df['Projeção Estatística Pura (%)'] = (df[col_votos] * 1.02).round(1)
         cols_estat = [c for c in df.columns if 'Probabilidade' not in c]
-        return df[cols_estat], cols_estat[1]
+        res_df = df[cols_estat].copy()
     else:
         if rejeicao_ativa and 'Taxa de Rejeição (%)' in df.columns:
             rejeicao_penalty = 1 - (df['Taxa de Rejeição (%)'] / 100)
@@ -285,7 +285,15 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, r
         pesos_finais = df[col_votos] * rejeicao_penalty
         df['Probabilidade Preditiva (Monte Carlo %)'] = (
             pesos_finais / pesos_finais.sum() * 100).round(1)
-        return df, col_votos
+        res_df = df.copy()
+
+    # Formatação Executiva de Colunas Numéricas (Padrão 1 Casa Decimal com %)
+    for col in res_df.columns:
+        if '%' in col or 'Quociente' in col:
+            res_df[col] = res_df[col].apply(
+                lambda x: f"{x:.1f}%" if '%' in col else f"{x:.1f}")
+
+    return res_df, [c for c in res_df.columns if '%' in c and 'Rejeição' not in c][0]
 
 
 df_candidatos, coluna_votos = motor_multimodelo(
@@ -295,8 +303,8 @@ df_candidatos, coluna_votos = motor_multimodelo(
 col1, col2 = st.columns(2)
 with col1:
     st.metric("Líder da Projeção", df_candidatos.iloc[0, 0])
-    st.metric("Intenção Registrada",
-              f"{df_candidatos.iloc[0][coluna_votos]:.1f}%", delta="📈 Tendência Consolidada")
+    st.metric("Intenção Registrada", str(
+        df_candidatos.iloc[0][coluna_votos]), delta="📈 Tendência Consolidada")
 with col2:
     if "Pesquisa Pura" in modo_analise:
         st.metric("Status da Amostragem", "Dados Brutos (Sem Filtro)")
@@ -307,8 +315,9 @@ with col2:
         st.metric("Margem de Erro Analítica",
                   f"± {margem_erro_estimada - 0.2:.1f}%")
     else:
-        st.metric("Probabilidade de Sucesso (IA)",
-                  f"{df_candidatos.iloc[0].get('Probabilidade Preditiva (Monte Carlo %)', 50.0)}%")
+        val_prob = df_candidatos.iloc[0].get(
+            'Probabilidade Preditiva (Monte Carlo %)', '50.0%')
+        st.metric("Probabilidade de Sucesso (IA)", str(val_prob))
         st.metric("Intervalo de Confiança",
                   f"95% (± {margem_erro_estimada + (20000/iteracoes_monte_carlo)*0.1:.1f}%)")
 
@@ -323,46 +332,52 @@ val_pura = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_seleci
 val_estat = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
                               fator_transferencia, janela_temporal, "Modelo Estatístico", usar_rejeicao)[0].iloc[0, 1]
 val_ia = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
-                           fator_transferencia, janela_temporal, "Modelo Preditivo com IA", usar_rejeicao)[0].iloc[0, 2]
+                           fator_transferencia, janela_temporal, "Modelo Preditivo com IA", usar_rejeicao)[0].iloc[0, 1]
 
 with col_m1:
     st.markdown(f"""
         <div class="comparison-card" style="border-top-color: #555555;">
             <p style="margin:0; font-size:12px; color:#666;">PESQUISA PURA (DADOS BRUTOS)</p>
-            <h3 style="margin:5px 0; color:#333;">{val_pura:.1f}%</h3>
+            <h3 style="margin:5px 0; color:#333;">{val_pura}</h3>
         </div>
     """, unsafe_allow_html=True)
 with col_m2:
     st.markdown(f"""
         <div class="comparison-card" style="border-top-color: #2ca02c;">
             <p style="margin:0; font-size:12px; color:#666;">MODELO ESTATÍSTICO</p>
-            <h3 style="margin:5px 0; color:#2ca02c;">{val_estat:.1f}%</h3>
+            <h3 style="margin:5px 0; color:#2ca02c;">{val_estat}</h3>
         </div>
     """, unsafe_allow_html=True)
 with col_m3:
     st.markdown(f"""
         <div class="comparison-card" style="border-top-color: #1f77b4;">
             <p style="margin:0; font-size:12px; color:#666;">PROBABILIDADE IA (MONTE CARLO)</p>
-            <h3 style="margin:5px 0; color:#1f77b4;">{val_ia}%</h3>
+            <h3 style="margin:5px 0; color:#1f77b4;">{val_ia}</h3>
         </div>
     """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# NOVO: Gráfico Comparativo Avançado Multimetodologia Lado a Lado (Top 3 Candidatos)
+# Gráfico Comparativo Avançado Multimetodologia Lado a Lado (Top 3 Candidatos)
 st.markdown("### 📊 Contraste Multimodelo (Top 3 Candidatos)")
-df_p = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
-                         fator_transferencia, janela_temporal, "Pesquisa Pura", usar_rejeicao)[0].head(3)
-df_e = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
-                         fator_transferencia, janela_temporal, "Modelo Estatístico", usar_rejeicao)[0].head(3)
-df_i = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
-                         fator_transferencia, janela_temporal, "Modelo Preditivo com IA", usar_rejeicao)[0].head(3)
+df_p_raw = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
+                             fator_transferencia, janela_temporal, "Pesquisa Pura", usar_rejeicao)[0].head(3)
+df_e_raw = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
+                             fator_transferencia, janela_temporal, "Modelo Estatístico", usar_rejeicao)[0].head(3)
+df_i_raw = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
+                             fator_transferencia, janela_temporal, "Modelo Preditivo com IA", usar_rejeicao)[0].head(3)
 
-col_cand = df_p.columns[0]
+col_cand = df_p_raw.columns[0]
+val_col_p = [c for c in df_p_raw.columns if '%' in c][0]
+val_col_e = [c for c in df_e_raw.columns if '%' in c][0]
+val_col_i = [c for c in df_i_raw.columns if '%' in c][0]
+
 df_comp = pd.DataFrame({
-    'Candidato': list(df_p[col_cand]) * 3,
-    'Percentual (%)': list(df_p.iloc[:, 1]) + list(df_e.iloc[:, 1]) + list(df_i.iloc[:, 1]),
-    'Metodologia': ['Pesquisa Pura']*len(df_p) + ['Modelo Estatístico']*len(df_e) + ['IA (Monte Carlo)']*len(df_i)
+    'Candidato': list(df_p_raw[col_cand]) * 3,
+    'Percentual (%)': list(df_p_raw[val_col_p].str.rstrip('%').astype(float)) +
+    list(df_e_raw[val_col_e].str.rstrip('%').astype(float)) +
+    list(df_i_raw[val_col_i].str.rstrip('%').astype(float)),
+    'Metodologia': ['Pesquisa Pura']*len(df_p_raw) + ['Modelo Estatístico']*len(df_e_raw) + ['IA (Monte Carlo)*']*len(df_i_raw)
 })
 
 fig_comp = px.bar(
@@ -372,7 +387,7 @@ fig_comp = px.bar(
     color='Metodologia',
     barmode='group',
     color_discrete_map={'Pesquisa Pura': '#555555',
-                        'Modelo Estatístico': '#2ca02c', 'IA (Monte Carlo)': '#1f77b4'}
+                        'Modelo Estatístico': '#2ca02c', 'IA (Monte Carlo)*': '#1f77b4'}
 )
 fig_comp.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',
@@ -392,7 +407,7 @@ voto_lider = df_candidatos.iloc[0][coluna_votos]
 st.markdown(f"""
     <div class="prediction-box">
         <h3>🎯 Síntese Analítica Avançada [{modo_analise} — {janela_temporal}]</h3>
-        <p>A liderança atual na praça selecionada pertence a <b>{lider_atual}</b> com <b>{voto_lider:.1f}%</b> na métrica avaliada.</p>
+        <p>A liderança atual na praça selecionada pertence a <b>{lider_atual}</b> com <b>{voto_lider}</b> na métrica avaliada.</p>
         <p><i>Nota Metodológica:</i> Cobertura nominal integrada, validada e ativa para 100% das unidades federativas e cargos eletivos nas três abordagens analíticas disponíveis. A margem de erro estimada para a praça atual ({estado_selecionado}) reflete a calibragem demográfica de <b>± {margem_erro_estimada:.1f}%</b>.</p>
     </div>
 """, unsafe_allow_html=True)
@@ -403,19 +418,17 @@ st.markdown("---")
 st.markdown(
     f"### 📈 Distribuição Visual Interativa — {cargo_selecionado} ({estado_selecionado})")
 
-nome_coluna_alvo = df_candidatos.columns[0]
-fig = px.bar(
+fig_ativo = px.bar(
     df_candidatos,
-    x=nome_coluna_alvo,
+    x=col_cand,
     y=coluna_votos,
     text=coluna_votos,
     color=coluna_votos,
     color_continuous_scale='Blues',
-    labels={nome_coluna_alvo: 'Candidato / Partido',
-            coluna_votos: 'Métrica (%)'}
+    labels={col_cand: 'Candidato / Partido', coluna_votos: 'Métrica (%)'}
 )
-fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
-fig.update_layout(
+fig_ativo.update_traces(textposition='outside')
+fig_ativo.update_layout(
     plot_bgcolor='rgba(0,0,0,0)',
     paper_bgcolor='rgba(0,0,0,0)',
     xaxis_title='',
@@ -424,13 +437,13 @@ fig.update_layout(
     uniformtext_mode='hide',
     margin=dict(t=20, b=20, l=20, r=20)
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig_ativo, use_container_width=True)
 
 st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
 st.dataframe(df_candidatos, use_container_width=True)
 
-# NOVO: Botão de Download de Dados em CSV
+# Botão de Download de Dados em CSV
 csv_data = df_candidatos.to_csv(index=False).encode('utf-8')
 st.markdown('<div class="download-btn-container">', unsafe_allow_html=True)
 st.download_button(
@@ -462,7 +475,7 @@ with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia
     ### Arquitetura Estatística e Inteligência Eleitoral
     Plataforma de simulação e previsão desenvolvida sob rigor metodológico e estrita **neutralidade analítica**, aplicando conceitos avançados de Data Science e Estatística Aplicada à Ciência Política:
 
-    1. **Multi-Modelagem Eleitoral Simultânea:**
+    1. **Multi-Modelagem Eleitoral Simultánea:**
        - **Pesquisa Pura (Dados Brutos):** Agregação observacional de intenções diretas de voto registradas em campo.
        - **Modelo Estatístico Paramétrico:** Aplicação de regressão linear ponderada e calibração histórico-temporal para absorção de tendências contínuas.
        - **Modelo Preditivo com IA (Monte Carlo + Log-Odds):** Simulações estocásticas de Monte Carlo ($N = {iteracoes_monte_carlo}$ iterações) ponderadas pela taxa de rejeição institucional (quando habilitada pelo utilizador), mapeando incertezas, tetos estatísticos e probabilidades de êxito eleitoral.
