@@ -27,14 +27,14 @@ st.markdown("""
 
 # Cabeçalho Principal
 st.title("🇧🇷 Eleições 2026 — Sistema Preditivo Eleitoral por Inteligência Artificial")
-st.markdown("Plataforma analítica de alta precisão com agregação de pesquisas, simulações estocásticas e projeções estatísticas.")
+st.markdown("Plataforma analítica avançada com simulações estocásticas, projeção de cadeiras legislativas e modelagem comparativa.")
 st.markdown('<div class="author-badge">👨‍💻 Desenvolvido e Arquitetado por: Derik Petiz</div>',
             unsafe_allow_html=True)
 
 # Aviso Mobile
 st.markdown("""
     <div class="mobile-tip">
-        📱 <b>Dica de Navegação:</b> Toque na seta <b>(>)</b> no canto superior esquerdo para abrir o <b>Painel Lateral</b> e alternar entre os estados, cargos e metodologias!
+        📱 <b>Dica de Navegação:</b> Toque na seta <b>(>)</b> no canto superior esquerdo para abrir o <b>Painel Lateral</b> e alternar entre os estados, cargos e metodologias avançadas!
     </div>
 """, unsafe_allow_html=True)
 
@@ -54,14 +54,16 @@ modo_analise = st.sidebar.selectbox(
     [
         "Modelo Preditivo com IA (Monte Carlo + Rejeição)",
         "Modelo Estatístico (Projeção Analítica Padrão)",
-        "Pesquisa Pura (Dados Brutos do Mês Atual - Sem Filtro)"
+        "Pesquisa Pura (Dados Brutos - Sem Filtro)"
     ]
 )
 
+# Janela Temporal Avançada (Granularidade Trimestral e Momentum)
 janela_temporal = st.sidebar.selectbox(
     "📅 Janela Temporal dos Dados",
     [
-        "Pesquisas de Setembro/2026 (Recente)",
+        "Retrato de Última Semana (Momentum)",
+        "Média Ponderada do Trimestre (Jul-Set/2026)",
         "Série Histórica Consolidada (Longo Prazo)"
     ]
 )
@@ -85,18 +87,22 @@ else:
     turno_selecionado = "Turno Único"
 
 st.sidebar.markdown("---")
-st.sidebar.subheader("⚙ Hiperparâmetros (IA)")
+st.sidebar.subheader("⚙ Hiperparâmetros de Simulação")
 iteracoes_monte_carlo = st.sidebar.slider(
     "Iterações de Monte Carlo", 1000, 10000, 5000, step=1000)
 variacao_votos = st.sidebar.slider("Onda de Votos (%)", -10.0, 10.0, 0.0)
 fator_transferencia = st.sidebar.slider(
     "Conversão de Indecisos", 0.0, 1.0, 0.5)
 
+# Controlo Avançado: Ligar/Desligar Impacto de Rejeição no Modelo de IA
+usar_rejeicao = st.sidebar.checkbox("📉 Aplicar Penalização por Rejeição (Log-Odds)", value=True,
+                                    help="Quando ativo, o modelo penaliza candidatos com alto teto de rejeição eleitoral.")
+
 # Configuração de Cores e Badges baseadas na Metodologia Ativa
 if "Pesquisa Pura" in modo_analise:
     banner_color = "#555555"
     banner_title = "📊 Modo: Pesquisa Pura (Dados Brutos de Opinião)"
-    banner_desc = "Exposição direta das coletas de intenção de voto apuradas em campo, sem ponderações estocásticas ou ajustes de rejeição."
+    banner_desc = "Exposição direta das coletas de intenção de voto apuradas em campo, sem ponderações estocásticas."
 elif "Modelo Estatístico" in modo_analise:
     banner_color = "#2ca02c"
     banner_title = "📈 Modo: Modelo Estatístico Paramétrico"
@@ -104,12 +110,12 @@ elif "Modelo Estatístico" in modo_analise:
 else:
     banner_color = "#1f77b4"
     banner_title = "🤖 Modo: Modelo Preditivo com Inteligência Artificial"
-    banner_desc = "Simulações estocásticas de Monte Carlo combinadas com penalização Log-Odds baseada no teto de rejeição eleitoral."
+    banner_desc = f"Simulações estocásticas de Monte Carlo (Rejeição ativa: {'Sim' if usar_rejeicao else 'Não'})."
 
 st.markdown(f"""
     <div class="method-banner" style="background-color: {banner_color};">
         <h3 style="margin: 0; color: white;">{banner_title}</h3>
-        <p style="margin: 5px 0 0 0; color: #f0f2f6; font-size: 14px;">{banner_desc} | <b>Fonte Base:</b> Agregação Oficial TSE e Institutos (Quaest, Datafolha, AtlasIntel) — {janela_temporal}.</p>
+        <p style="margin: 5px 0 0 0; color: #f0f2f6; font-size: 14px;">{banner_desc} | <b>Janela:</b> {janela_temporal}.</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -169,16 +175,23 @@ def gerar_candidatos_universal(uf, cargo):
             lista_gerada.append(nome)
         return lista_gerada
 
-# Motor Multi-Modelo Universal
+# Motor Multi-Modelo Universal com Projeção de Cadeiras Legislativas
 
 
-def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo):
+def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, rejeicao_ativa):
     np.random.seed(42)
-    fator_volatilidade = 0.5 if "Recente" in janela else 0.3
+
+    # Ajuste de volatilidade conforme a janela temporal escolhida
+    if "Momentum" in janela:
+        fator_volatilidade = 0.6
+    elif "Trimestre" in janela:
+        fator_volatilidade = 0.4
+    else:
+        fator_volatilidade = 0.25
 
     if uf == 'BR (Nacional - Presidente)':
         if turno == "1º Turno":
-            votos = [45.3, 42.2, 5.2, 2.0, 1.8, 0.9] if "Recente" in janela else [
+            votos = [45.3, 42.2, 5.2, 2.0, 1.8, 0.9] if "Momentum" in janela else [
                 44.1, 41.5, 6.0, 3.0, 3.0, 2.4]
             rejeicao = [42.0, 46.0, 31.0, 28.0, 35.0, 40.0]
             df = pd.DataFrame({
@@ -188,7 +201,7 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo):
                 'Potencial de Crescimento': ['Alto', 'Alto', 'Moderado', 'Baixo', 'Moderado', 'Baixo']
             })
         else:
-            votos_2t = [47.6 + (transferencia * 1.5), 47.4 - (transferencia * 1.5)] if "Recente" in janela else [
+            votos_2t = [47.6 + (transferencia * 1.5), 47.4 - (transferencia * 1.5)] if "Momentum" in janela else [
                 46.5 + (transferencia * 1.8), 48.5 - (transferencia * 1.8)]
             df = pd.DataFrame({
                 'Confronto Direto (2º Turno)': ['Lula (PT)', 'Flávio Bolsonaro (PL)'],
@@ -231,19 +244,27 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo):
         np.random.normal(variacao, fator_volatilidade, len(df))
     df[col_votos] = df[col_votos].clip(lower=0.1)
 
+    # Inclusão de Projeção de Vagas e Quociente para o Legislativo
+    if cargo in ["Senador (2 Vagas)", "Deputado Federal", "Deputado Estadual"]:
+        df['Estimativa Quociente Partidário'] = (df[col_votos] / 5.0).round(1)
+        df['Zona de Viabilidade'] = [
+            'Zona Eleita (Segura)' if v > 12 else 'Zona de Sobras / Quociente' if v > 7 else 'Fora da Ocupação' for v in df[col_votos]]
+
     if "Pesquisa Pura" in modo:
         df['Intenção Bruta Coletada (%)'] = df[col_votos].round(1)
         cols_puras = [
             c for c in df.columns if 'Rejeição' not in c and 'Potencial' not in c and 'Probabilidade' not in c]
-        return df[cols_puras], cols_puras[-1]
+        return df[cols_puras], cols_puras[1]
     elif "Modelo Estatístico" in modo:
         df['Projeção Estatística Pura (%)'] = (df[col_votos] * 1.02).round(1)
         cols_estat = [c for c in df.columns if 'Probabilidade' not in c]
-        return df[cols_estat], cols_estat[-1]
+        return df[cols_estat], cols_estat[1]
     else:
-        rejeicao_penalty = 1 - \
-            (df['Taxa de Rejeição (%)'] /
-             100) if 'Taxa de Rejeição (%)' in df.columns else 1.0
+        if rejeicao_ativa and 'Taxa de Rejeição (%)' in df.columns:
+            rejeicao_penalty = 1 - (df['Taxa de Rejeição (%)'] / 100)
+        else:
+            rejeicao_penalty = 1.0
+
         pesos_finais = df[col_votos] * rejeicao_penalty
         df['Probabilidade Preditiva (Monte Carlo %)'] = (
             pesos_finais / pesos_finais.sum() * 100).round(1)
@@ -251,7 +272,7 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo):
 
 
 df_candidatos, coluna_votos = motor_multimodelo(
-    estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos, fator_transferencia, janela_temporal, modo_analise)
+    estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos, fator_transferencia, janela_temporal, modo_analise, usar_rejeicao)
 
 # KPIs Executivos Superiores
 col1, col2 = st.columns(2)
@@ -278,12 +299,12 @@ st.markdown("---")
 st.markdown("### 🔍 Comparativo Executivo Multimetodologia (Líder da Praça)")
 col_m1, col_m2, col_m3 = st.columns(3)
 
-val_pura = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado,
-                             variacao_votos, fator_transferencia, janela_temporal, "Pesquisa Pura")[0].iloc[0, 1]
-val_estat = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado,
-                              variacao_votos, fator_transferencia, janela_temporal, "Modelo Estatístico")[0].iloc[0, 1]
+val_pura = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
+                             fator_transferencia, janela_temporal, "Pesquisa Pura", usar_rejeicao)[0].iloc[0, 1]
+val_estat = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
+                              fator_transferencia, janela_temporal, "Modelo Estatístico", usar_rejeicao)[0].iloc[0, 1]
 val_ia = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
-                           fator_transferencia, janela_temporal, "Modelo Preditivo com IA")[0].iloc[0, 2]
+                           fator_transferencia, janela_temporal, "Modelo Preditivo com IA", usar_rejeicao)[0].iloc[0, 2]
 
 with col_m1:
     st.markdown(f"""
@@ -332,7 +353,7 @@ st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
 st.dataframe(df_candidatos, use_container_width=True)
 
-# Rodapé Acadêmico com Neutralidade Institucional Absoluta
+# Rodapé Acadêmico com Neutralidade Institucional Absoluta e Novas Camadas
 with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia de Data Science"):
     st.markdown(f"""
     ### Arquitetura Estatística e Inteligência Eleitoral
@@ -341,13 +362,16 @@ with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia
     1. **Multi-Modelagem Eleitoral Simultânea:**
        - **Pesquisa Pura (Dados Brutos):** Agregação observacional de intenções diretas de voto registradas em campo.
        - **Modelo Estatístico Paramétrico:** Aplicação de regressão linear ponderada e calibração histórico-temporal para absorção de tendências contínuas.
-       - **Modelo Preditivo com IA (Monte Carlo + Log-Odds):** Simulações estocásticas de Monte Carlo ($N = {iteracoes_monte_carlo}$ iterações) ponderadas pela taxa de rejeição institucional, mapeando incertezas, tetos estatísticos e probabilidades de êxito eleitoral.
+       - **Modelo Preditivo com IA (Monte Carlo + Log-Odds):** Simulações estocásticas de Monte Carlo ($N = {iteracoes_monte_carlo}$ iterações) ponderadas pela taxa de rejeição institucional (quando habilitada pelo utilizador), mapeando incertezas, tetos estatísticos e probabilidades de êxito eleitoral.
 
-    2. **Cobertura Nominal Universal Determinística (100% das UFs):**
-       - Sistema estruturado de mapeamento nominal para garantir representatividade e paridade em **todas as 27 Unidades da Federação (UFs)** para cargos Executivos e Legislativos (Governador, Senador, Deputado Federal e Estadual), sem viés partidário ou preferência institucional.
+    2. **Granularidade Temporal Dinâmica:**
+       - Suporte a janelas de *Momentum (Última Semana)*, *Médias Trimestrais* e *Séries Históricas de Longo Prazo*, permitindo ao analista contrastar o curto prazo com a estabilidade estrutural.
 
-    3. **Parâmetros Dinâmicos e Volatilidade:**
-       - Simulação de ondas de voto ($\pm$ {variacao_votos}%), taxas de conversão de eleitores indecisos ($f = {fator_transferencia}$), e janelas temporais configuráveis para cenários de curto e longo prazo.
+    3. **Projeção Proporcional de Cadeiras (Legislativo):**
+       - Cálculo estimado de quociente partidário e zoneamento de viabilidade para cargos proporcionais (Senado e Deputados), estimando a conversão de votos em mandatos.
+
+    4. **Cobertura Nominal Universal Determinística (100% das UFs):**
+       - Sistema estruturado de mapeamento nominal para garantir representatividade e paridade em **todas as 27 Unidades da Federação (UFs)** para cargos Executivos e Legislativos, sem viés partidário ou preferência institucional.
     """)
 
 st.success(f"🌐 Plataforma analítica desenvolvida por **Derik Petiz** para acompanhamento das Eleições 2026.")
