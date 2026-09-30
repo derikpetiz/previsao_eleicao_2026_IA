@@ -332,23 +332,22 @@ st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
 st.dataframe(df_candidatos, use_container_width=True)
 
-# Rodapé Acadêmico com Metodologia Atualizada e Abrangente
+# Rodapé Acadêmico com Neutralidade Institucional Absoluta
 with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia de Data Science"):
     st.markdown(f"""
     ### Arquitetura Estatística e Inteligência Eleitoral
-    Plataforma de simulação e previsão desenvolvida e arquitetada por **Derik Petiz**, integrando rigor matemático da ciência de dados com cenários reais da ciência política brasileira:
+    Plataforma de simulação e previsão desenvolvida sob rigor metodológico e estrita **neutralidade analítica**, aplicando conceitos avançados de Data Science e Estatística Aplicada à Ciência Política:
 
     1. **Multi-Modelagem Eleitoral Simultânea:**
-       - **Pesquisa Pura (Dados Brutos):** Coleta agregada de intenções diretas de voto em campo, servindo como linha de base observacional.
+       - **Pesquisa Pura (Dados Brutos):** Agregação observacional de intenções diretas de voto registradas em campo.
        - **Modelo Estatístico Paramétrico:** Aplicação de regressão linear ponderada e calibração histórico-temporal para absorção de tendências contínuas.
-       - **Modelo Preditivo com IA (Monte Carlo + Log-Odds):** Simulações estocásticas de Monte Carlo ($N = {iteracoes_monte_carlo}$ iterações) ponderadas pela taxa de rejeição dos candidatos, mapeando incertezas, tetos eleitorais e probabilidades reais de vitória.
+       - **Modelo Preditivo com IA (Monte Carlo + Log-Odds):** Simulações estocásticas de Monte Carlo ($N = {iteracoes_monte_carlo}$ iterações) ponderadas pela taxa de rejeição institucional, mapeando incertezas, tetos estatísticos e probabilidades de êxito eleitoral.
 
     2. **Cobertura Nominal Universal Determinística (100% das UFs):**
-       - Mapeamento nominal validado para figuras de destaque nacional e regional (como André Fernandes no Ceará, além de lideranças em SP, RJ, MG e BA).
-       - Algoritmo determinístico baseado em hash estruturado para garantir nominatas reais, partidos ativos e representatividade em **todas as 27 Unidades da Federação (UFs)** para cargos Executivos e Legislativos (Governador, Senador, Deputado Federal e Estadual).
+       - Sistema estruturado de mapeamento nominal para garantir representatividade e paridade em **todas as 27 Unidades da Federação (UFs)** para cargos Executivos e Legislativos (Governador, Senador, Deputado Federal e Estadual), sem viés partidário ou preferência institucional.
 
     3. **Parâmetros Dinâmicos e Volatilidade:**
-       - Suporte a simulação de ondas de voto ($\pm$ {variacao_votos}%), taxas de conversão de eleitores indecisos ($f = {fator_transferencia}$), e janelas temporais configuráveis para cenários de curto e longo prazo.
+       - Simulação de ondas de voto ($\pm$ {variacao_votos}%), taxas de conversão de eleitores indecisos ($f = {fator_transferencia}$), e janelas temporais configuráveis para cenários de curto e longo prazo.
     """)
 
 st.success(f"🌐 Plataforma analítica desenvolvida por **Derik Petiz** para acompanhamento das Eleições 2026.")
