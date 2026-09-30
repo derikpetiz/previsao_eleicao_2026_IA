@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import hashlib
-import plotly.express as px
 
 # Configuração da página e layout executivo
 st.set_page_config(
@@ -26,16 +25,16 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Cabeçalho Principal
-st.title("🇧🇷 Eleições 2026 — Sistema Preditivo Eleitoral por Inteligência Artificial")
-st.markdown("Plataforma analítica avançada com visualização interativa em Plotly, projeções estocásticas e análise legislativa proporcional.")
-st.markdown('<div class="author-badge">👨‍💻 Desenvolvido e Arquitetado por: Derik Petiz</div>',
+# Cabeçalho Principal com o Título Escolhido
+st.title("🇧🇷 Eleições 2026 — Plataforma Preditiva e Multimetodologia Eleitoral")
+st.markdown("Sistema analítico avançado com simulações estocásticas, projeção de cadeiras proporcionais e modelagem comparativa.")
+st.markdown('<div class="author-badge">👨‍‍💻 Desenvolvido e Arquitetado por: Derik Petiz</div>',
             unsafe_allow_html=True)
 
 # Aviso Mobile Refinado
 st.markdown("""
     <div class="mobile-tip">
-        📱 <b>Instrução de Navegação:</b> Toque na seta <b>(>)</b> no canto superior esquerdo para expandir o <b>Painel Lateral</b> e selecionar a Unidade da Federação, o cargo pretendido e a abordagem metodológica.
+        📱 <b>Instrução de Navegação:</b> Toque na seta <b>(>)</b> no canto superior esquerdo para expandir o <b>Painel de Controle</b> e selecionar a Unidade da Federação, o cargo pretendido e a abordagem metodológica.
     </div>
 """, unsafe_allow_html=True)
 
@@ -46,7 +45,7 @@ lista_ufs = [
 ]
 
 # Barra Lateral de Controlo
-st.sidebar.header("🎛️ Painel de Controlo Analítico")
+st.sidebar.header("🎛️ Painel de Controle Analítico")
 st.sidebar.markdown(f"**Autor:** Derik Petiz")
 st.sidebar.markdown("---")
 
@@ -343,38 +342,16 @@ st.markdown(f"""
 
 st.markdown("---")
 
-# Gráfico Moderno em Plotly
+# Gráfico de Barras Nativo
 st.markdown(
-    f"### 📈 Distribuição Visual Interativa — {cargo_selecionado} ({estado_selecionado})")
-
-nome_coluna_alvo = df_candidatos.columns[0]
-fig = px.bar(
-    df_candidatos,
-    x=nome_coluna_alvo,
-    y=coluna_votos,
-    text=coluna_votos,
-    color=coluna_votos,
-    color_continuous_scale='Blues',
-    labels={nome_coluna_alvo: 'Candidato / Partido',
-            coluna_votos: 'Métrica (%)'}
-)
-fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
-fig.update_layout(
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)',
-    xaxis_title='',
-    yaxis_title='Percentual (%)',
-    uniformtext_minsize=8,
-    uniformtext_mode='hide',
-    margin=dict(t=20, b=20, l=20, r=20)
-)
-st.plotly_chart(fig, use_container_width=True)
+    f"### 📈 Distribuição Visual — {cargo_selecionado} ({estado_selecionado})")
+st.bar_chart(df_candidatos.set_index(df_candidatos.columns[0])[coluna_votos])
 
 st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
 st.dataframe(df_candidatos, use_container_width=True)
 
-# Rodapé Acadêmico com Neutralidade Institucional Absoluta e Terminologia Refinada
+# Rodapé Acadêmico
 with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia de Data Science"):
     st.markdown(f"""
     ### Arquitetura Estatística e Inteligência Eleitoral
