@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import hashlib
+import plotly.express as px
 
 # Configuração da página e layout executivo
 st.set_page_config(
@@ -27,14 +28,14 @@ st.markdown("""
 
 # Cabeçalho Principal
 st.title("🇧🇷 Eleições 2026 — Sistema Preditivo Eleitoral por Inteligência Artificial")
-st.markdown("Plataforma analítica avançada com simulações estocásticas, projeção de cadeiras legislativas e modelagem comparativa.")
+st.markdown("Plataforma analítica avançada com visualização interativa em Plotly, projeções estocásticas e análise legislativa proporcional.")
 st.markdown('<div class="author-badge">👨‍💻 Desenvolvido e Arquitetado por: Derik Petiz</div>',
             unsafe_allow_html=True)
 
-# Aviso Mobile
+# Aviso Mobile Refinado
 st.markdown("""
     <div class="mobile-tip">
-        📱 <b>Dica de Navegação:</b> Toque na seta <b>(>)</b> no canto superior esquerdo para abrir o <b>Painel Lateral</b> e alternar entre os estados, cargos e hiperparâmetros!
+        📱 <b>Instrução de Navegação:</b> Toque na seta <b>(>)</b> no canto superior esquerdo para expandir o <b>Painel Lateral</b> e selecionar a Unidade da Federação, o cargo pretendido e a abordagem metodológica.
     </div>
 """, unsafe_allow_html=True)
 
@@ -58,7 +59,7 @@ modo_analise = st.sidebar.selectbox(
     ]
 )
 
-# Janela Temporal Avançada (Granularidade Trimestral e Momentum)
+# Janela Temporal Avançada
 janela_temporal = st.sidebar.selectbox(
     "📅 Janela Temporal dos Dados",
     [
@@ -88,36 +89,34 @@ else:
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("⚙ Hiperparâmetros de Simulação")
-# Refinamento com step para maior precisão analítica
-iteracoes_monte_carlo = st.sidebar.slider("Iterações de Monte Carlo", 1000, 20000, 10000,
-                                          step=1000, help="Número de simulações estocásticas para convergência probabilística.")
-variacao_votos = st.sidebar.slider("Onda de Votos / Viés (%)", -15.0, 15.0, 0.0, step=0.5,
-                                   help="Simula ondas de crescimento ou retração transversal para todos os candidatos.")
-fator_transferencia = st.sidebar.slider("Taxa de Conversão de Indecisos", 0.0, 1.0,
-                                        0.5, step=0.05, help="Eficiência na migração de votos flutuantes e indecisos.")
+iteracoes_monte_carlo = st.sidebar.slider("Iterações de Monte Carlo", 1000, 20000, 10000, step=1000,
+                                          help="Número de simulações estocásticas para convergência probabilística do modelo.")
+variacao_votos = st.sidebar.slider("Onda de Votos / Viés transversal (%)", -15.0, 15.0, 0.0, step=0.5,
+                                   help="Simula ondas de crescimento ou retração transversal para o conjunto das candidaturas.")
+fator_transferencia = st.sidebar.slider("Taxa de Conversão de Eleitores Indecisos", 0.0, 1.0, 0.5,
+                                        step=0.05, help="Coeficiente de eficiência na migração de votos flutuantes e eleitores indecisos.")
 
-# Controlo Avançado: Ligar/Desligar Impacto de Rejeição no Modelo de IA
 usar_rejeicao = st.sidebar.checkbox("📉 Aplicar Penalização por Rejeição (Log-Odds)", value=True,
-                                    help="Quando ativo, o modelo penaliza candidatos com alto teto de rejeição eleitoral.")
+                                    help="Quando ativo, o algoritmo pondera a intenção bruta frente ao teto de rejeição institucional.")
 
 # Configuração de Cores e Badges baseadas na Metodologia Ativa
 if "Pesquisa Pura" in modo_analise:
     banner_color = "#555555"
-    banner_title = "📊 Modo: Pesquisa Pura (Dados Brutos de Opinião)"
+    banner_title = "📊 Abordagem: Pesquisa Pura (Dados Brutos de Opinião)"
     banner_desc = "Exposição direta das coletas de intenção de voto apuradas em campo, sem ponderações estocásticas."
 elif "Modelo Estatístico" in modo_analise:
     banner_color = "#2ca02c"
-    banner_title = "📈 Modo: Modelo Estatístico Paramétrico"
-    banner_desc = "Projeção analítica baseada em regressão linear ponderada e calibração de tendências históricas."
+    banner_title = "📈 Abordagem: Modelo Estatístico Paramétrico"
+    banner_desc = "Projeção analítica fundamentada em regressão linear ponderada e calibração histórico-temporal."
 else:
     banner_color = "#1f77b4"
-    banner_title = "🤖 Modo: Modelo Preditivo com Inteligência Artificial"
-    banner_desc = f"Simulações estocásticas de Monte Carlo (Rejeição ativa: {'Sim' if usar_rejeicao else 'Não'})."
+    banner_title = "🤖 Abordagem: Modelo Preditivo com Inteligência Artificial"
+    banner_desc = f"Simulações estocásticas de Monte Carlo (Penalização por rejeição: {'Ativa' if usar_rejeicao else 'Inativa'})."
 
 st.markdown(f"""
     <div class="method-banner" style="background-color: {banner_color};">
         <h3 style="margin: 0; color: white;">{banner_title}</h3>
-        <p style="margin: 5px 0 0 0; color: #f0f2f6; font-size: 14px;">{banner_desc} | <b>Janela:</b> {janela_temporal}.</p>
+        <p style="margin: 5px 0 0 0; color: #f0f2f6; font-size: 14px;">{banner_desc} | <b>Janela Temporal:</b> {janela_temporal}.</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -177,7 +176,7 @@ def gerar_candidatos_universal(uf, cargo):
             lista_gerada.append(nome)
         return lista_gerada
 
-# Motor Multi-Modelo Universal com Projeção de Cadeiras Legislativas
+# Motor Multi-Modelo Universal
 
 
 def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, rejeicao_ativa):
@@ -279,7 +278,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.metric("Líder da Projeção", df_candidatos.iloc[0, 0])
     st.metric("Intenção Registrada",
-              f"{df_candidatos.iloc[0][coluna_votos]:.1f}%", delta="📈 Tendência Alta")
+              f"{df_candidatos.iloc[0][coluna_votos]:.1f}%", delta="📈 Tendência Consolidada")
 with col2:
     if "Pesquisa Pura" in modo_analise:
         st.metric("Status da Amostragem", "Dados Brutos (Sem Filtro)")
@@ -330,30 +329,52 @@ with col_m3:
 
 st.markdown("---")
 
-# Diagnóstico Dinâmico
+# Diagnóstico Dinâmico Refinado
 lider_atual = df_candidatos.iloc[0, 0]
 voto_lider = df_candidatos.iloc[0][coluna_votos]
 
 st.markdown(f"""
     <div class="prediction-box">
-        <h3>🎯 Diagnóstico Analítico Avançado [{modo_analise} — {janela_temporal}]</h3>
+        <h3>🎯 Síntese Analítica Avançada [{modo_analise} — {janela_temporal}]</h3>
         <p>A liderança atual na praça selecionada pertence a <b>{lider_atual}</b> com <b>{voto_lider:.1f}%</b> na métrica avaliada.</p>
-        <p><i>Nota Metodológica:</i> Cobertura nominal integrada, validada e ativa para 100% dos estados e cargos do país nas três abordagens metodológicas públicas.</p>
+        <p><i>Nota Metodológica:</i> Cobertura nominal integrada, validada e ativa para 100% das unidades federativas e cargos eletivos nas três abordagens analíticas disponíveis.</p>
     </div>
 """, unsafe_allow_html=True)
 
 st.markdown("---")
 
-# Seção Gráfica
+# Gráfico Moderno em Plotly
 st.markdown(
-    f"### 📈 Distribuição Visual — {cargo_selecionado} ({estado_selecionado})")
-st.bar_chart(df_candidatos.set_index(df_candidatos.columns[0])[coluna_votos])
+    f"### 📈 Distribuição Visual Interativa — {cargo_selecionado} ({estado_selecionado})")
+
+nome_coluna_alvo = df_candidatos.columns[0]
+fig = px.bar(
+    df_candidatos,
+    x=nome_coluna_alvo,
+    y=coluna_votos,
+    text=coluna_votos,
+    color=coluna_votos,
+    color_continuous_scale='Blues',
+    labels={nome_coluna_alvo: 'Candidato / Partido',
+            coluna_votos: 'Métrica (%)'}
+)
+fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+fig.update_layout(
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    xaxis_title='',
+    yaxis_title='Percentual (%)',
+    uniformtext_minsize=8,
+    uniformtext_mode='hide',
+    margin=dict(t=20, b=20, l=20, r=20)
+)
+st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
 st.dataframe(df_candidatos, use_container_width=True)
 
-# Rodapé Acadêmico com Neutralidade Institucional Absoluta
+# Rodapé Acadêmico com Neutralidade Institucional Absoluta e Terminologia Refinada
 with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia de Data Science"):
     st.markdown(f"""
     ### Arquitetura Estatística e Inteligência Eleitoral
