@@ -34,7 +34,7 @@ st.markdown('<div class="author-badge">👨‍💻 Desenvolvido e Arquitetado po
 # Aviso Mobile
 st.markdown("""
     <div class="mobile-tip">
-        📱 <b>Dica de Navegação:</b> Toque na seta <b>(>)</b> no canto superior esquerdo para abrir o <b>Painel Lateral</b> e alternar entre os estados, cargos e metodologias avançadas!
+        📱 <b>Dica de Navegação:</b> Toque na seta <b>(>)</b> no canto superior esquerdo para abrir o <b>Painel Lateral</b> e alternar entre os estados, cargos e hiperparâmetros!
     </div>
 """, unsafe_allow_html=True)
 
@@ -88,11 +88,13 @@ else:
 
 st.sidebar.markdown("---")
 st.sidebar.subheader("⚙ Hiperparâmetros de Simulação")
-iteracoes_monte_carlo = st.sidebar.slider(
-    "Iterações de Monte Carlo", 1000, 10000, 5000, step=1000)
-variacao_votos = st.sidebar.slider("Onda de Votos (%)", -10.0, 10.0, 0.0)
-fator_transferencia = st.sidebar.slider(
-    "Conversão de Indecisos", 0.0, 1.0, 0.5)
+# Refinamento com step para maior precisão analítica
+iteracoes_monte_carlo = st.sidebar.slider("Iterações de Monte Carlo", 1000, 20000, 10000,
+                                          step=1000, help="Número de simulações estocásticas para convergência probabilística.")
+variacao_votos = st.sidebar.slider("Onda de Votos / Viés (%)", -15.0, 15.0, 0.0, step=0.5,
+                                   help="Simula ondas de crescimento ou retração transversal para todos os candidatos.")
+fator_transferencia = st.sidebar.slider("Taxa de Conversão de Indecisos", 0.0, 1.0,
+                                        0.5, step=0.05, help="Eficiência na migração de votos flutuantes e indecisos.")
 
 # Controlo Avançado: Ligar/Desligar Impacto de Rejeição no Modelo de IA
 usar_rejeicao = st.sidebar.checkbox("📉 Aplicar Penalização por Rejeição (Log-Odds)", value=True,
@@ -181,7 +183,6 @@ def gerar_candidatos_universal(uf, cargo):
 def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, rejeicao_ativa):
     np.random.seed(42)
 
-    # Ajuste de volatilidade conforme a janela temporal escolhida
     if "Momentum" in janela:
         fator_volatilidade = 0.6
     elif "Trimestre" in janela:
@@ -244,7 +245,6 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, r
         np.random.normal(variacao, fator_volatilidade, len(df))
     df[col_votos] = df[col_votos].clip(lower=0.1)
 
-    # Inclusão de Projeção de Vagas e Quociente para o Legislativo
     if cargo in ["Senador (2 Vagas)", "Deputado Federal", "Deputado Estadual"]:
         df['Estimativa Quociente Partidário'] = (df[col_votos] / 5.0).round(1)
         df['Zona de Viabilidade'] = [
@@ -291,7 +291,7 @@ with col2:
         st.metric("Probabilidade de Sucesso (IA)",
                   f"{df_candidatos.iloc[0].get('Probabilidade Preditiva (Monte Carlo %)', 50.0)}%")
         st.metric("Intervalo de Confiança",
-                  f"95% (± {1.5 + (10000/iteracoes_monte_carlo)*0.2:.1f}%)")
+                  f"95% (± {1.5 + (20000/iteracoes_monte_carlo)*0.1:.1f}%)")
 
 st.markdown("---")
 
@@ -353,7 +353,7 @@ st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
 st.dataframe(df_candidatos, use_container_width=True)
 
-# Rodapé Acadêmico com Neutralidade Institucional Absoluta e Novas Camadas
+# Rodapé Acadêmico com Neutralidade Institucional Absoluta
 with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia de Data Science"):
     st.markdown(f"""
     ### Arquitetura Estatística e Inteligência Eleitoral
