@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import hashlib
+import plotly.express as px
 
 # Configuração da página e layout executivo
 st.set_page_config(
@@ -27,8 +28,8 @@ st.markdown("""
 
 # Cabeçalho Principal com o Título Escolhido
 st.title("🇧🇷 Eleições 2026 — Plataforma Preditiva e Multimetodologia Eleitoral")
-st.markdown("Sistema analítico avançado com simulações estocásticas, projeção de cadeiras proporcionais e modelagem comparativa.")
-st.markdown('<div class="author-badge">👨‍‍💻 Desenvolvido e Arquitetado por: Derik Petiz</div>',
+st.markdown("Sistema analítico avançado com visualização interativa em Plotly, simulações estocásticas e projeção proporcional de cadeiras.")
+st.markdown('<div class="author-badge">👨‍💻 Desenvolvido e Arquitetado por: Derik Petiz</div>',
             unsafe_allow_html=True)
 
 # Aviso Mobile Refinado
@@ -44,7 +45,7 @@ lista_ufs = [
     'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
 ]
 
-# Barra Lateral de Controlo
+# Barra Lateral de Controle
 st.sidebar.header("🎛️ Painel de Controle Analítico")
 st.sidebar.markdown(f"**Autor:** Derik Petiz")
 st.sidebar.markdown("---")
@@ -342,10 +343,32 @@ st.markdown(f"""
 
 st.markdown("---")
 
-# Gráfico de Barras Nativo
+# Gráfico Moderno e Interativo em Plotly (Visual Sofisticado)
 st.markdown(
-    f"### 📈 Distribuição Visual — {cargo_selecionado} ({estado_selecionado})")
-st.bar_chart(df_candidatos.set_index(df_candidatos.columns[0])[coluna_votos])
+    f"### 📈 Distribuição Visual Interativa — {cargo_selecionado} ({estado_selecionado})")
+
+nome_coluna_alvo = df_candidatos.columns[0]
+fig = px.bar(
+    df_candidatos,
+    x=nome_coluna_alvo,
+    y=coluna_votos,
+    text=coluna_votos,
+    color=coluna_votos,
+    color_continuous_scale='Blues',
+    labels={nome_coluna_alvo: 'Candidato / Partido',
+            coluna_votos: 'Métrica (%)'}
+)
+fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
+fig.update_layout(
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    xaxis_title='',
+    yaxis_title='Percentual (%)',
+    uniformtext_minsize=8,
+    uniformtext_mode='hide',
+    margin=dict(t=20, b=20, l=20, r=20)
+)
+st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
