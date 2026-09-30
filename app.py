@@ -120,14 +120,14 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# Gerador Nominal Universal Determinístico
+# Gerador Nominal Universal Determinístico (Sem títulos profissionais, apenas Nome + Partido)
 
 
 def gerar_candidatos_universal(uf, cargo):
     base_real = {
         'CE': {
-            'Governador': ['Ciro Gomes (PSDB)', 'Elmano de Freitas (PT)', 'Delegado Huggo (Missão)', 'Vera Lúcia (NOVO)', 'Danilo Soares (Democrata)', 'Zé Batista (PSTU)'],
-            'Senador (2 Vagas)': ['Cid Gomes (PSB)', 'Capitão Wagner (UNIÃO)', 'Luizianne (REDE)', 'Alcides Fernandes (PL)', 'Catarina Matos (UP)', 'Guilherme Theophilo (NOVO)'],
+            'Governador': ['Ciro Gomes (PSDB)', 'Elmano de Freitas (PT)', 'Capitão Wagner (UNIÃO)', 'Vera Lúcia (NOVO)', 'Danilo Soares (PSD)', 'Zé Batista (PSTU)'],
+            'Senador (2 Vagas)': ['Cid Gomes (PSB)', 'Eunício Oliveira (MDB)', 'Luizianne (PT)', 'Alcides Fernandes (PL)', 'Catarina Matos (UP)', 'Guilherme Theophilo (PSDB)'],
             'Deputado Federal': ['André Fernandes (PL)', 'José Guimarães (PT)', 'Júnior Mano (PL)', 'Ideli Salvatti (PT)', 'Danilo Forte (UNIÃO)', 'Domingos Neto (PSD)'],
             'Deputado Estadual': ['Evandro Leitão (PT)', 'Sargento Reginauro (UNIÃO)', 'Romeu Aldigueri (PDT)', 'Fernando Santana (PT)', 'Antônio Granja (PDT)', 'Cláudio Pinho (PDT)']
         },
@@ -164,15 +164,13 @@ def gerar_candidatos_universal(uf, cargo):
                            "José", "Francisco", "Luiz", "Eduardo", "Renato", "Fernando", "Marcelo"]
         sobrenomes = ["Oliveira", "Souza", "Costa", "Pereira", "Carvalho",
                       "Alves", "Ribeiro", "Martins", "Rocha", "Araújo", "Barbosa", "Cardoso"]
-        titulos = ["Deputado", "Liderança", "Ex-Prefeito",
-                   "Secretário", "Empresário", "Advogado"]
         partidos = ["PL", "PT", "UNIÃO", "PSD", "MDB",
                     "REPUBLICANOS", "PSB", "PDT", "PSDB", "PSOL", "NOVO", "PP"]
 
         lista_gerada = []
         for i in range(6):
             h = int(hashlib.md5(f"{uf}_{cargo}_{i}".encode()).hexdigest(), 16)
-            nome = f"{titulos[h % len(titulos)]} {primeiros_nomes[(h // 5) % len(primeiros_nomes)]} {sobrenomes[(h // 15) % len(sobrenomes)]} ({partidos[(h // 30) % len(partidos)]})"
+            nome = f"{primeiros_nomes[(h // 5) % len(primeiros_nomes)]} {sobrenomes[(h // 15) % len(sobrenomes)]} ({partidos[(h // 30) % len(partidos)]})"
             lista_gerada.append(nome)
         return lista_gerada
 
