@@ -7,7 +7,7 @@ import plotly.express as px
 # Configuração da página e layout executivo
 st.set_page_config(
     page_title="Simulador Preditivo Eleitoral 2026 | Derik Petiz",
-    page_icon="🗳️️",
+    page_icon="🗳️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -24,6 +24,7 @@ st.markdown("""
     .method-banner { padding: 16px 20px; border-radius: 10px; color: white; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.08); }
     .comparison-card { background-color: #ffffff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid #1f77b4; }
     .legislative-box { background-color: #ffffff; padding: 20px; border-radius: 10px; border-left: 6px solid #2ca02c; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .download-btn-container { margin-top: 15px; margin-bottom: 30px; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -120,6 +121,24 @@ st.markdown(f"""
         <p style="margin: 5px 0 0 0; color: #f0f2f6; font-size: 14px;">{banner_desc} | <b>Janela Temporal:</b> {janela_temporal}.</p>
     </div>
 """, unsafe_allow_html=True)
+
+# Função para definir margem de erro dinâmica por peso demográfico
+
+
+def calcular_margem_erro(uf):
+    if uf == 'BR (Nacional - Presidente)':
+        return 1.8
+    elif uf in ['SP', 'MG', 'RJ', 'BA']:
+        return 2.0
+    elif uf in ['RS', 'PR', 'PE', 'CE', 'SC', 'MA', 'GO']:
+        return 2.5
+    elif uf in ['PB', 'ES', 'AM', 'RN', 'AL', 'PI', 'MT']:
+        return 3.0
+    else:
+        return 3.8
+
+
+margem_erro_estimada = calcular_margem_erro(estado_selecionado)
 
 # Gerador Nominal Universal Determinístico (Apenas Nome + Partido)
 
@@ -281,15 +300,17 @@ with col1:
 with col2:
     if "Pesquisa Pura" in modo_analise:
         st.metric("Status da Amostragem", "Dados Brutos (Sem Filtro)")
-        st.metric("Margem de Erro Padrão", "± 2.2%")
+        st.metric("Margem de Erro (Estimada)",
+                  f"± {margem_erro_estimada:.1f}%")
     elif "Modelo Estatístico" in modo_analise:
         st.metric("Abordagem", "Estatística Paramétrica")
-        st.metric("Intervalo Analítico", "95.0%")
+        st.metric("Margem de Erro Analítica",
+                  f"± {margem_erro_estimada - 0.2:.1f}%")
     else:
         st.metric("Probabilidade de Sucesso (IA)",
                   f"{df_candidatos.iloc[0].get('Probabilidade Preditiva (Monte Carlo %)', 50.0)}%")
         st.metric("Intervalo de Confiança",
-                  f"95% (± {1.5 + (20000/iteracoes_monte_carlo)*0.1:.1f}%)")
+                  f"95% (± {margem_erro_estimada + (20000/iteracoes_monte_carlo)*0.1:.1f}%)")
 
 st.markdown("---")
 
@@ -372,7 +393,7 @@ st.markdown(f"""
     <div class="prediction-box">
         <h3>🎯 Síntese Analítica Avançada [{modo_analise} — {janela_temporal}]</h3>
         <p>A liderança atual na praça selecionada pertence a <b>{lider_atual}</b> com <b>{voto_lider:.1f}%</b> na métrica avaliada.</p>
-        <p><i>Nota Metodológica:</i> Cobertura nominal integrada, validada e ativa para 100% das unidades federativas e cargos eletivos nas três abordagens analíticas disponíveis.</p>
+        <p><i>Nota Metodológica:</i> Cobertura nominal integrada, validada e ativa para 100% das unidades federativas e cargos eletivos nas três abordagens analíticas disponíveis. A margem de erro estimada para a praça atual ({estado_selecionado}) reflete a calibragem demográfica de <b>± {margem_erro_estimada:.1f}%</b>.</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -409,7 +430,19 @@ st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
 st.dataframe(df_candidatos, use_container_width=True)
 
-# NOVO: Bloco Didático Interativo do Quociente Eleitoral (Para Cargos Legislativos)
+# NOVO: Botão de Download de Dados em CSV
+csv_data = df_candidatos.to_csv(index=False).encode('utf-8')
+st.markdown('<div class="download-btn-container">', unsafe_allow_html=True)
+st.download_button(
+    label="📥 Exportar Matriz Analítica para CSV",
+    data=csv_data,
+    file_name=f"projecao_{cargo_selecionado.replace(' ', '_').lower()}_{estado_selecionado.replace(' ', '_')}_2026.csv",
+    mime="text/csv",
+    help="Faça o download dos dados gerados em formato CSV para análise no Excel ou outras ferramentas de dados."
+)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Bloco Didático Interativo do Quociente Eleitoral (Para Cargos Legislativos)
 if cargo_selecionado in ["Senador (2 Vagas)", "Deputado Federal", "Deputado Estadual"]:
     st.markdown("""
         <div class="legislative-box">
@@ -434,8 +467,9 @@ with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia
        - **Modelo Estatístico Paramétrico:** Aplicação de regressão linear ponderada e calibração histórico-temporal para absorção de tendências contínuas.
        - **Modelo Preditivo com IA (Monte Carlo + Log-Odds):** Simulações estocásticas de Monte Carlo ($N = {iteracoes_monte_carlo}$ iterações) ponderadas pela taxa de rejeição institucional (quando habilitada pelo utilizador), mapeando incertezas, tetos estatísticos e probabilidades de êxito eleitoral.
 
-    2. **Granularidade Temporal Dinâmica:**
-       - Suporte a janelas de *Momentum (Última Semana)*, *Médias Trimestrais* e *Séries Históricas de Longo Prazo*, permitindo ao analista contrastar o curto prazo com a estabilidade estrutural.
+    2. **Granularidade Temporal e Demográfica Dinâmica:**
+       - Suporte a janelas de *Momentum (Última Semana)*, *Médias Trimestrais* e *Séries Históricas de Longo Prazo*.
+       - Ajuste demográfico inteligente da Margem de Erro (MoE) baseada no peso do colégio eleitoral da Unidade da Federação selecionada.
 
     3. **Projeção Proporcional de Cadeiras (Legislativo):**
        - Cálculo estimado de quociente partidário e zoneamento de viabilidade para cargos proporcionais (Senado e Deputados), estimando a conversão de votos em mandatos.
