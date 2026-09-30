@@ -7,7 +7,7 @@ import plotly.express as px
 # Configuração da página e layout executivo
 st.set_page_config(
     page_title="Simulador Preditivo Eleitoral 2026 | Derik Petiz",
-    page_icon="🗳️",
+    page_icon="🗳️️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -23,12 +23,13 @@ st.markdown("""
     .mobile-tip { background-color: #fff3cd; border: 1px solid #ffeeba; padding: 12px 18px; border-radius: 8px; color: #856404; font-weight: 500; margin-bottom: 20px; }
     .method-banner { padding: 16px 20px; border-radius: 10px; color: white; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.08); }
     .comparison-card { background-color: #ffffff; padding: 18px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid #1f77b4; }
+    .legislative-box { background-color: #ffffff; padding: 20px; border-radius: 10px; border-left: 6px solid #2ca02c; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
     </style>
 """, unsafe_allow_html=True)
 
 # Cabeçalho Principal com o Título Escolhido
 st.title("🇧🇷 Eleições 2026 — Plataforma Preditiva e Multimetodologia Eleitoral")
-st.markdown("Sistema analítico avançado com visualização interativa em Plotly, simulações estocásticas e projeção proporcional de cadeiras.")
+st.markdown("Sistema analítico avançado com visualização comparativa multimodelo, simulações estocásticas de Monte Carlo e projeção de cadeiras.")
 st.markdown('<div class="author-badge">👨‍💻 Desenvolvido e Arquitetado por: Derik Petiz</div>',
             unsafe_allow_html=True)
 
@@ -120,7 +121,7 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# Gerador Nominal Universal Determinístico (Sem títulos profissionais, apenas Nome + Partido)
+# Gerador Nominal Universal Determinístico (Apenas Nome + Partido)
 
 
 def gerar_candidatos_universal(uf, cargo):
@@ -327,6 +328,42 @@ with col_m3:
 
 st.markdown("---")
 
+# NOVO: Gráfico Comparativo Avançado Multimetodologia Lado a Lado (Top 3 Candidatos)
+st.markdown("### 📊 Contraste Multimodelo (Top 3 Candidatos)")
+df_p = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
+                         fator_transferencia, janela_temporal, "Pesquisa Pura", usar_rejeicao)[0].head(3)
+df_e = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
+                         fator_transferencia, janela_temporal, "Modelo Estatístico", usar_rejeicao)[0].head(3)
+df_i = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
+                         fator_transferencia, janela_temporal, "Modelo Preditivo com IA", usar_rejeicao)[0].head(3)
+
+col_cand = df_p.columns[0]
+df_comp = pd.DataFrame({
+    'Candidato': list(df_p[col_cand]) * 3,
+    'Percentual (%)': list(df_p.iloc[:, 1]) + list(df_e.iloc[:, 1]) + list(df_i.iloc[:, 1]),
+    'Metodologia': ['Pesquisa Pura']*len(df_p) + ['Modelo Estatístico']*len(df_e) + ['IA (Monte Carlo)']*len(df_i)
+})
+
+fig_comp = px.bar(
+    df_comp,
+    x='Candidato',
+    y='Percentual (%)',
+    color='Metodologia',
+    barmode='group',
+    color_discrete_map={'Pesquisa Pura': '#555555',
+                        'Modelo Estatístico': '#2ca02c', 'IA (Monte Carlo)': '#1f77b4'}
+)
+fig_comp.update_layout(
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    xaxis_title='',
+    yaxis_title='Estimativa / Probabilidade (%)',
+    margin=dict(t=20, b=20, l=20, r=20)
+)
+st.plotly_chart(fig_comp, use_container_width=True)
+
+st.markdown("---")
+
 # Diagnóstico Dinâmico Refinado
 lider_atual = df_candidatos.iloc[0, 0]
 voto_lider = df_candidatos.iloc[0][coluna_votos]
@@ -341,7 +378,7 @@ st.markdown(f"""
 
 st.markdown("---")
 
-# Gráfico Moderno e Interativo em Plotly (Visual Sofisticado)
+# Gráfico Moderno e Interativo em Plotly para a Visão Ativa
 st.markdown(
     f"### 📈 Distribuição Visual Interativa — {cargo_selecionado} ({estado_selecionado})")
 
@@ -372,6 +409,20 @@ st.markdown("---")
 st.markdown(f"### 📋 Matriz Analítica Detalhada")
 st.dataframe(df_candidatos, use_container_width=True)
 
+# NOVO: Bloco Didático Interativo do Quociente Eleitoral (Para Cargos Legislativos)
+if cargo_selecionado in ["Senador (2 Vagas)", "Deputado Federal", "Deputado Estadual"]:
+    st.markdown("""
+        <div class="legislative-box">
+            <h4 style="margin-top:0; color: #2ca02c;">🏛️ Memória de Cálculo: Projeção de Cadeiras e Quociente Partidário</h4>
+            <p>Para os cargos proporcionais e plurinominais, a conversão de votos em mandatos segue a regra constitucional brasileira:</p>
+            <ul>
+                <li><b>Quociente Eleitoral (QE):</b> Calculado dividindo-se o total de votos válidos da circunscrição pelo número de cadeiras em disputa.</li>
+                <li><b>Quociente Partidário (QP):</b> Determina o número de vagas diretas que cada partido ou federação conquista ao dividir seus votos totais pelo QE.</li>
+                <li><b>Zona de Viabilidade:</b> Classifica a segurança da candidatura com base na densidade eleitoral projetada pelo modelo estocástico ativo.</li>
+            </ul>
+        </div>
+    """, unsafe_allow_html=True)
+
 # Rodapé Acadêmico
 with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia de Data Science"):
     st.markdown(f"""
@@ -390,7 +441,7 @@ with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia
        - Cálculo estimado de quociente partidário e zoneamento de viabilidade para cargos proporcionais (Senado e Deputados), estimando a conversão de votos em mandatos.
 
     4. **Cobertura Nominal Universal Determinística (100% das UFs):**
-       - Sistema estruturado de mapeamento nominal para garantir representatividade e paridade em **todas as 27 Unidades da Federação (UFs)** para cargos Executivos e Legislativos, sem viés partidário ou preferência institucional.
+       - Sistema estruturado de mapeamento nominal limpo (Nome + Partido) para garantir representatividade e paridade em **todas as 27 Unidades da Federação (UFs)** para cargos Executivos e Legislativos, sem viés partidário ou preferência institucional.
     """)
 
 st.success(f"🌐 Plataforma analítica desenvolvida por **Derik Petiz** para acompanhamento das Eleições 2026.")
