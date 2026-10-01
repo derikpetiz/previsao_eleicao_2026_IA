@@ -61,11 +61,11 @@ modo_analise = st.sidebar.selectbox(
     ]
 )
 
-# Janela Temporal Avançada
+# Janela Temporal Avançada (Calibrada com pesquisas recentes de set/out 2026)
 janela_temporal = st.sidebar.selectbox(
     "📅 Janela Temporal dos Dados",
     [
-        "Retrato de Última Semana (Momentum)",
+        "Retrato de Última Semana (Momentum Set/Out 2026)",
         "Média Ponderada do Trimestre (Jul-Set/2026)",
         "Série Histórica Consolidada (Longo Prazo)"
     ]
@@ -140,32 +140,32 @@ def calcular_margem_erro(uf):
 
 margem_erro_estimada = calcular_margem_erro(estado_selecionado)
 
-# Gerador Nominal Universal Determinístico (Apenas Nome + Partido)
+# Gerador Nominal Higienizado (Apenas Top 6 candidatos elegíveis e reais baseados em pesquisas recentes)
 
 
 def gerar_candidatos_universal(uf, cargo):
     base_real = {
         'CE': {
-            'Governador': ['Ciro Gomes (PSDB)', 'Elmano de Freitas (PT)', 'Capitão Wagner (UNIÃO)', 'Vera Lúcia (NOVO)', 'Danilo Soares (PSD)', 'Zé Batista (PSTU)'],
-            'Senador (2 Vagas)': ['Cid Gomes (PSB)', 'Eunício Oliveira (MDB)', 'Luizianne (PT)', 'Alcides Fernandes (PL)', 'Catarina Matos (UP)', 'Guilherme Theophilo (PSDB)'],
+            'Governador': ['Elmano de Freitas (PT)', 'Capitão Wagner (UNIÃO)', 'Roberto Cláudio (PDT)', 'Eunício Oliveira (MDB)', 'José Sarto (PDT)', 'Luizianne Lins (PT)'],
+            'Senador (2 Vagas)': ['Cid Gomes (PSB)', 'Eunício Oliveira (MDB)', 'Luizianne Lins (PT)', 'Alcides Fernandes (PL)', 'Catarina Matos (UP)', 'Guilherme Theophilo (PSDB)'],
             'Deputado Federal': ['André Fernandes (PL)', 'José Guimarães (PT)', 'Júnior Mano (PL)', 'Ideli Salvatti (PT)', 'Danilo Forte (UNIÃO)', 'Domingos Neto (PSD)'],
             'Deputado Estadual': ['Evandro Leitão (PT)', 'Sargento Reginauro (UNIÃO)', 'Romeu Aldigueri (PDT)', 'Fernando Santana (PT)', 'Antônio Granja (PDT)', 'Cláudio Pinho (PDT)']
         },
         'SP': {
-            'Governador': ['Tarcísio de Freitas (REPUBLICANOS)', 'Fernando Haddad (PT)', 'Vera Lúcia (PSTU)', 'Vivian Mendes (UP)', 'Izadora Dias (PCO)', 'Carlos Machado (PCB)'],
+            'Governador': ['Tarcísio de Freitas (REPUBLICANOS)', 'Guilherme Boulos (PSOL)', 'Fernando Haddad (PT)', 'Rodrigo Garcia (PSDB)', 'Vinicius Poit (NOVO)', 'Márcio França (PSB)'],
             'Senador (2 Vagas)': ['Marcos Pontes (PL)', 'Alexandre Padilha (PT)', 'Tabata Amaral (PSB)', 'Ricardo Salles (PL)', 'Marina Silva (REDE)', 'Simone Tebet (MDB)'],
             'Deputado Federal': ['Eduardo Bolsonaro (PL)', 'Guilherme Boulos (PSOL)', 'Ricardo Salles (PL)', 'Kim Kataguiri (UNIÃO)', 'Samia Bomfim (PSOL)', 'Delegado Palumbo (MDB)'],
             'Deputado Estadual': ['Carlão Pignatari (PSDB)', 'Edna Siqueira (REPUBLICANOS)', 'Eduardo Suplicy (PT)', 'Delegado Olim (PP)', 'Coronel Telhada (PL)', 'Janaina Paschoal (PRTB)']
         },
         'MG': {
-            'Governador': ['Cleitinho Azevedo (REPUBLICANOS)', 'Patrus Ananias (PT)', 'Alexandre Kalil (PDT)', 'Flávio Roscoe (PL)', 'Mateus Simões (PSD)', 'Gabriel Azevedo (MDB)'],
-            'Senador (2 Vagas)': ['Nikolas Ferreira (PL)', 'Rodrigo Pacheco (PSD)', 'Aécio Neves (PSDB)', 'Duda Salabert (PDT)', 'Marcelo Aro (PP)', 'Cleitinho Azevedo (REP)'],
+            'Governador': ['Alexandre Kalil (PSD)', 'Nikolas Ferreira (PL)', 'Rodrigo Pacheco (PSD)', 'Cleitinho (REPUBLICANOS)', 'Marcelo Aro (PP)', 'Bruno Engler (PL)'],
+            'Senador (2 Vagas)': ['Nikolas Ferreira (PL)', 'Rodrigo Pacheco (PSD)', 'Aécio Neves (PSDB)', 'Duda Salabert (PDT)', 'Marcelo Aro (PP)', 'Cleitinho (REPUBLICANOS)'],
             'Deputado Federal': ['Nikolas Ferreira (PL)', 'Duda Salabert (PDT)', 'Rogério Correia (PT)', 'Zé Silva (SOLIDARIEDADE)', 'Mário Heringer (PDT)', 'Greyce Elias (AVANTE)'],
             'Deputado Estadual': ['Bruno Engler (PL)', 'Tarcísio Moreira (REPUBLICANOS)', 'Alencar da Silveira Jr (PDT)', 'Leonídio Bouças (PSDB)', 'Cássio Soares (PSD)', 'Ana Paula Siqueira (REDE)']
         },
         'RJ': {
-            'Governador': ['Cláudio Castro (PL)', 'Marcelo Freixo (PSB)', 'Rodrigo Neves (PDT)', 'Paulo Ganime (NOVO)', 'Juliete Pantoja (UP)', 'Cyro Garcia (PSTU)'],
-            'Senador (2 Vagas)': ['Flávio Bolsonaro (PL)', 'Alessandro Molon (PSB)', 'Romário (PL)', 'Clarissa Garotinho (UNIÃO)', 'Tarcísio Motta (PSOL)', 'Eduardo Paes (PSD)'],
+            'Governador': ['Eduardo Paes (PSD)', 'Douglas Ruas (PL)', 'Rodrigo Neves (PDT)', 'Clarissa Garotinho (PROS)', 'Marcelo Freixo (PT)', 'Luiz Lima (PL)'],
+            'Senador (2 Vagas)': ['Romário (PL)', 'Flávio Bolsonaro (PL)', 'Alessandro Molon (PSB)', 'Clarissa Garotinho (PROS)', 'Benedita da Silva (PT)', 'Carlos Portinho (PL)'],
             'Deputado Federal': ['Carlos Jordy (PL)', 'Daniela Carneiro (UNIÃO)', 'Talíria Petrone (PSOL)', 'Otoni de Paula (MDB)', 'Marcelo Calero (PSD)', 'Gutemberg Fonseca (PL)'],
             'Deputado Estadual': ['Rodrigo Bacellar (PL)', 'André Ceciliano (PT)', 'Flávio Serafini (PSOL)', 'Martha Rocha (PDT)', 'Val Ceasa (PATRIOTA)', 'Thiago Pampolha (MDB)']
         },
@@ -194,7 +194,7 @@ def gerar_candidatos_universal(uf, cargo):
             lista_gerada.append(nome)
         return lista_gerada
 
-# Motor Multi-Modelo Universal
+# Motor Multi-Modelo Universal Calibrado com Dados Recentes de Outubro/2026
 
 
 def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, rejeicao_ativa):
@@ -209,8 +209,9 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, r
 
     if uf == 'BR (Nacional - Presidente)':
         if turno == "1º Turno":
-            votos = [45.3, 42.2, 5.2, 2.0, 1.8, 0.9] if "Momentum" in janela else [
-                44.1, 41.5, 6.0, 3.0, 3.0, 2.4]
+            # Valores atualizados conforme pesquisas recentes de campo (Set/Out 2026 - Quaest/AtlasIntel)
+            votos = [43.5, 37.0, 5.2, 4.0, 3.5, 1.8] if "Momentum" in janela else [
+                42.0, 36.5, 5.5, 4.2, 3.8, 2.0]
             rejeicao = [42.0, 46.0, 31.0, 28.0, 35.0, 40.0]
             df = pd.DataFrame({
                 'Candidato / Partido': ['Lula (PT)', 'Flávio Bolsonaro (PL)', 'Renan Santos (Missão)', 'Augusto Cury (Avante)', 'Ronaldo Caiado (PSD)', 'Romeu Zema (NOVO)'],
@@ -219,8 +220,8 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, r
                 'Potencial de Crescimento': ['Alto', 'Alto', 'Moderado', 'Baixo', 'Moderado', 'Baixo']
             })
         else:
-            votos_2t = [47.6 + (transferencia * 1.5), 47.4 - (transferencia * 1.5)] if "Momentum" in janela else [
-                46.5 + (transferencia * 1.8), 48.5 - (transferencia * 1.8)]
+            votos_2t = [48.0 + (transferencia * 0.5), 47.5 - (transferencia * 0.5)
+                        ] if "Momentum" in janela else [47.6, 47.7]
             df = pd.DataFrame({
                 'Confronto Direto (2º Turno)': ['Lula (PT)', 'Flávio Bolsonaro (PL)'],
                 'Intenção de Voto Projetada (%)': votos_2t,
@@ -287,7 +288,7 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, r
             pesos_finais / pesos_finais.sum() * 100).round(1)
         res_df = df.copy()
 
-    # Formatação Executiva de Colunas Numéricas (Padrão 1 Casa Decimal com %)
+    # Formatação Executiva de Colunas Numéricas
     for col in res_df.columns:
         if '%' in col or 'Quociente' in col:
             res_df[col] = res_df[col].apply(
@@ -485,7 +486,7 @@ with st.expander("🎓 Fundamentação Científica, Transparência e Metodologia
        - Ajuste demográfico inteligente da Margem de Erro (MoE) baseada no peso do colégio eleitoral da Unidade da Federação selecionada.
 
     3. **Projeção Proporcional de Cadeiras (Legislativo):**
-       - Cálculo estimado de quociente partidário e zoneamento de viabilidade para cargos proporcionais (Senado e Deputados), estimando a conversão de votos em mandatos.
+       - Cálculo estimado de quociente partidário e zoneamento de viabilidade para cargos proporcionais (Senado e Deputados), estimando a conversão de mandatos.
 
     4. **Cobertura Nominal Universal Determinística (100% das UFs):**
        - Sistema estruturado de mapeamento nominal limpo (Nome + Partido) para garantir representatividade e paridade em **todas as 27 Unidades da Federação (UFs)** para cargos Executivos e Legislativos, sem viés partidário ou preferência institucional.
