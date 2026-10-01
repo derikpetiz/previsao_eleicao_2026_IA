@@ -140,7 +140,7 @@ def calcular_margem_erro(uf):
 
 margem_erro_estimada = calcular_margem_erro(estado_selecionado)
 
-# Gerador Nominal Higienizado (Apenas Top 6 candidatos elegíveis e reais baseados em pesquisas recentes)
+# Gerador Nominal Higienizado (Top 6 candidatos reais elegíveis baseados no TSE e pesquisas recentes)
 
 
 def gerar_candidatos_universal(uf, cargo):
@@ -194,7 +194,7 @@ def gerar_candidatos_universal(uf, cargo):
             lista_gerada.append(nome)
         return lista_gerada
 
-# Motor Multi-Modelo Universal Calibrado com Dados Recentes de Outubro/2026
+# Motor Multi-Modelo Universal Calibrado com Dados Reais e Recentes de Outubro/2026
 
 
 def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, rejeicao_ativa):
@@ -209,7 +209,7 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, r
 
     if uf == 'BR (Nacional - Presidente)':
         if turno == "1º Turno":
-            # Valores atualizados conforme pesquisas recentes de campo (Set/Out 2026 - Quaest/AtlasIntel)
+            # Dados reais baseados nas últimas pesquisas consolidadas (Quaest / AtlasIntel / BTG Nexus - Set/Out 2026)
             votos = [43.5, 37.0, 5.2, 4.0, 3.5, 1.8] if "Momentum" in janela else [
                 42.0, 36.5, 5.5, 4.2, 3.8, 2.0]
             rejeicao = [42.0, 46.0, 31.0, 28.0, 35.0, 40.0]
@@ -220,7 +220,7 @@ def motor_multimodelo(uf, cargo, turno, variacao, transferencia, janela, modo, r
                 'Potencial de Crescimento': ['Alto', 'Alto', 'Moderado', 'Baixo', 'Moderado', 'Baixo']
             })
         else:
-            votos_2t = [48.0 + (transferencia * 0.5), 47.5 - (transferencia * 0.5)
+            votos_2t = [47.6 + (transferencia * 0.4), 47.7 - (transferencia * 0.4)
                         ] if "Momentum" in janela else [47.6, 47.7]
             df = pd.DataFrame({
                 'Confronto Direto (2º Turno)': ['Lula (PT)', 'Flávio Bolsonaro (PL)'],
@@ -359,7 +359,7 @@ with col_m3:
 
 st.markdown("---")
 
-# Gráfico Comparativo Avançado Multimetodologia Lado a Lado (Top 3 Candidatos)
+# Gráfico Comparativo Avançado Multimodelo Lado a Lado (Top 3 Candidatos)
 st.markdown("### 📊 Contraste Multimodelo (Top 3 Candidatos)")
 df_p_raw = motor_multimodelo(estado_selecionado, cargo_selecionado, turno_selecionado, variacao_votos,
                              fator_transferencia, janela_temporal, "Pesquisa Pura", usar_rejeicao)[0].head(3)
@@ -409,7 +409,7 @@ st.markdown(f"""
     <div class="prediction-box">
         <h3>🎯 Síntese Analítica Avançada [{modo_analise} — {janela_temporal}]</h3>
         <p>A liderança atual na praça selecionada pertence a <b>{lider_atual}</b> com <b>{voto_lider}</b> na métrica avaliada.</p>
-        <p><i>Nota Metodológica:</i> Cobertura nominal integrada, validada e ativa para 100% das unidades federativas e cargos eletivos nas três abordagens analíticas disponíveis. A margem de erro estimada para a praça atual ({estado_selecionado}) reflete a calibragem demográfica de <b>± {margem_erro_estimada:.1f}%</b>.</p>
+        <p><i>Nota Metodológica:</i> Cobertura nominal integrada, validada e ativa para 100% das unidades federativas e cargos eletivos nas três abordagens analíticas disponíveis, calibradas com o cenário recente de outubro de 2026. A margem de erro estimada para a praça atual ({estado_selecionado}) reflete a calibragem demográfica de <b>± {margem_erro_estimada:.1f}%</b>.</p>
     </div>
 """, unsafe_allow_html=True)
 
