@@ -6,16 +6,16 @@ import plotly.graph_objects as go
 
 # Configuração da página e layout wide
 st.set_page_config(
-    page_title="Eleições 2026 — Plataforma Preditiva e Multimetodologia",
+    page_title="Eleições 2026 — Plataforma Preditiva e Multimodelo",
     page_icon="🗳️",
     layout="wide"
 )
 
-# Título e cabeçalho completo da plataforma
-st.title("🗳️ Eleições 2026 — Plataforma Preditiva e Multimetodologia Eleitoral")
-st.markdown("### Sistema integrado de simulação estocástica (Monte Carlo), penalização por Log-Odds, análise de momentum e calibração com dados recentes do TSE e pesquisas.")
+# Título e cabeçalho executivo institucional
+st.title("🗳️ Eleições 2026 — Plataforma Preditiva e Multimodelo Eleitoral")
+st.markdown("### Sistema analítico avançado para simulação, previsão e contraste de cenários eleitorais brasileiros (Outubro / 2026).")
 
-# Sidebar completa para controles globais e parâmetros avançados
+# Sidebar profissional de controle analítico
 st.sidebar.header("⚙️ Painel de Controle Analítico")
 
 # Seleção de Cargo
@@ -35,26 +35,25 @@ else:
         'SP', 'SE', 'TO'
     ]
 
-uf = st.sidebar.selectbox(
-    "Selecione a Unidade da Federação (UF) / Escopo:", uf_lista)
+uf = st.sidebar.selectbox("Selecione a Unidade da Federação (UF):", uf_lista)
 
 # Seleção de Turno
 turno = st.sidebar.radio("Selecione o Turno:", ["1º Turno", "2º Turno"])
 
-# Parâmetros de simulação e volatilidade estocástica
+# Parâmetros Estocásticos & IA
 st.sidebar.markdown("---")
-st.sidebar.subheader("🎛️ Parâmetros Estocásticos & IA")
+st.sidebar.subheader("🎛️ Parâmetros de Simulação")
 simulacoes = st.sidebar.slider(
     "Iterações de Monte Carlo:", 1000, 10000, 5000, step=1000)
 transferencia = st.sidebar.slider(
-    "Fator de Migração de Indecisos / Volatilidade:", 0.0, 5.0, 2.0, step=0.5)
+    "Volatilidade / Migração de Indecisos:", 0.0, 5.0, 2.0, step=0.5)
 nivel_confianca = st.sidebar.slider(
-    "Intervalo de Confiança Estatística (%):", 90, 99, 95, step=1)
+    "Intervalo de Confiança (%):", 90, 99, 95, step=1)
 
-# Base de Dados Completa, Higienizada e Atualizada (Outubro de 2026)
+# Base de Dados Higienizada e Atualizada (Outubro de 2026)
 
 
-def obter_dados_completos_tse(cargo, uf, turno):
+def obter_dados_eleitorais(cargo, uf, turno):
     if cargo == "Presidente da República":
         if turno == "1º Turno":
             return {
@@ -113,12 +112,12 @@ def obter_dados_completos_tse(cargo, uf, turno):
             'momentum': [+0.4, +0.4, +0.1, 0.0, -0.1, -0.2]
         }
 
-# Motor Multimodelo Integrado (Pesquisa Pura + Estatístico + Monte Carlo)
+# Motor Multimodelo Integrado (Pesquisa Pura + Estatístico + Monte Carlo com Log-Odds)
 
 
-def executar_motor_multimodelo(cargo, uf, turno, transferencia, iteracoes):
+def processar_motor_multimodelo(cargo, uf, turno, transferencia, iteracoes):
     np.random.seed(42)
-    dados = obter_dados_completos_tse(cargo, uf, turno)
+    dados = obter_dados_eleitorais(cargo, uf, turno)
     candidatos, votos_base, rejeicao, momentum = dados[
         'candidatos'], dados['votos'], dados['rejeicao'], dados['momentum']
 
@@ -150,34 +149,34 @@ def executar_motor_multimodelo(cargo, uf, turno, transferencia, iteracoes):
     return pd.DataFrame(tabela)
 
 
-df_resultado = executar_motor_multimodelo(
+df_resultado = processar_motor_multimodelo(
     cargo, uf, turno, transferencia, simulacoes)
 
-# Layout e Métricas Principais
+# Layout Principal & Métricas Executivas
 st.markdown(f"### 📍 Escopo Analítico: **{cargo}** — **{uf}** | **{turno}**")
 
 col1, col2, col3, col4 = st.columns(4)
-col1.metric(label="Metodologia", value="Multimodelo Integrado",
-            delta="TSE + Pesquisa Pura + IA")
-col2.metric(label="Iterações Estocásticas",
-            value=f"{simulacoes:,}", delta="Convergência Ativa")
-col3.metric(label="Calibração", value="Log-Odds Ponderado",
-            delta="Rejeição Ativa")
+col1.metric(label="Arquitetura", value="Multimodelo Integrado",
+            delta="TSE + Estatística + IA")
+col2.metric(label="Simulação Estocástica",
+            value=f"{simulacoes:,} iterações", delta="Monte Carlo Ativo")
+col3.metric(label="Calibração", value="Penalização Log-Odds",
+            delta="Rejeição Aplicada")
 col4.metric(label="Janela Temporal",
             value="Outubro / 2026", delta="Dados Recentes")
 
 st.markdown("---")
 
-# Abas Analíticas Detalhadas
+# Abas Analíticas Profissionais
 aba1, aba2, aba3, aba4 = st.tabs([
     "📊 Contraste Multimodelo & Gráficos",
     "📋 Matriz Detalhada & IC",
     "📈 Análise de Momentum & Tendências",
-    "⚙️ Metodologia & Notas Técnicas"
+    "⚙️ Notas Metodológicas"
 ])
 
 with aba1:
-    st.subheader("📊 Comparativo Visual entre as Metodologias Preditivas")
+    st.subheader("📊 Comparativo Visual entre as Abordagens Preditivas")
     df_melted = df_resultado.melt(
         id_vars=['Candidato / Bloco'],
         value_vars=[
@@ -188,7 +187,7 @@ with aba1:
     fig = px.bar(
         df_melted, x='Candidato / Bloco', y='Percentual / Probabilidade (%)', color='Metodologia',
         barmode='group', text='Percentual / Probabilidade (%)',
-        title=f"Desempenho Comparativo dos 3 Modelos — {cargo} ({uf} / {turno})"
+        title=f"Contraste Multimodelo — {cargo} ({uf} / {turno})"
     )
     fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
     fig.update_layout(template='plotly_dark')
@@ -202,29 +201,29 @@ with aba2:
     st.download_button(
         label="📥 Baixar Relatório Técnico em CSV",
         data=csv,
-        file_name=f'relatorio_completo_{cargo.lower().replace(" ", "_")}_{uf}_{turno}.csv',
+        file_name=f'relatorio_eleitoral_{cargo.lower().replace(" ", "_")}_{uf}_{turno}.csv',
         mime='text/csv',
     )
 
 with aba3:
-    st.subheader("📈 Análise de Momentum e Retrato da Última Semana")
+    st.subheader("📈 Análise de Momentum e Variação da Última Semana")
     fig_mom = px.bar(
         df_resultado, x='Candidato / Bloco', y='Momentum (Última Semana)',
         color='Momentum (Última Semana)', color_continuous_scale=['red', 'yellow', 'green'],
-        title=f"Variação de Votos na Última Semana (Momentum) — {cargo} ({uf})"
+        title=f"Variação de Momentum — {cargo} ({uf})"
     )
     fig_mom.update_layout(template='plotly_dark')
     st.plotly_chart(fig_mom, use_container_width=True)
-    st.markdown("*O Momentum reflete a variação recente capturada pelas últimas pesquisas de campo e pelo fluxo de transferência de votos.*")
+    st.markdown(
+        "*O indicador de Momentum captura as tendências recentes de crescimento ou retração na última semana de campanha.*")
 
 with aba4:
     st.subheader("⚙️ Detalhes da Arquitetura Metodológica")
     st.markdown("""
-    * **1. Pesquisa Pura**: Utiliza como âncora inicial as intenções de voto consolidadas nos registros e pesquisas de campo recentes.
-    * **2. Modelo Estatístico Paramétrico**: Aplica distribuições normais de probabilidade considerando a volatilidade do eleitorado e o fator de migração de indecisos.
-    * **3. Simulação de Monte Carlo com Log-Odds**: Executa milhares de iterações estocásticas ponderando a taxa de rejeição institucional de cada candidatura para projetar a probabilidade real de vitória.
+    * **Pesquisa Pura (Dados Brutos):** Âncora inicial baseada nos registros oficiais e intenções de voto apuradas em campo.
+    * **Modelo Estatístico Paramétrico:** Aplicação de distribuições probabilísticas para absorção de volatilidade e comportamento de eleitores indecisos.
+    * **Modelo Preditivo com IA (Monte Carlo + Log-Odds):** Simulações estocásticas ponderadas pelo teto de rejeição institucional, mitigando vieses e calculando probabilidades reais de êxito.
     """)
 
 st.markdown("---")
-st.markdown(
-    "*Plataforma avançada de previsão eleitoral, simulação estocástica e ciência de dados aplicada.*")
+st.markdown("*Plataforma avançada de previsão eleitoral e simulação estocástica desenvolvida para portfólio de Ciência de Dados.*")
